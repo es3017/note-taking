@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Note Taking App</title>
+  <style>
+    #notePanel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    #removedPanel {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-width: 150px;
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    .note {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-width: 150px;
+      position: relative;
+      cursor: pointer;
+      transition: border-color 0.3s ease-in-out;
+    }
+    .note.important {
+      border-color: red;
+    }
+  </style>
+</head>
+<body>
+
+<div>
+  <h2>Note Taking App</h2>
+  <label for="noteInput">Add Note:</label>
+  <input type="text" id="noteInput">
+  <button id="addNote">Add</button>
+</div>
+
+<div id="notePanel"></div>
+<div id="removedPanel"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $('#addNote').on('click', function() {
+      var noteContent = $('#noteInput').val().trim();
+      if (noteContent !== '') {
+        var $note = $('<div class="note">' + noteContent + '</div>');
+        
+        var position = Math.floor(Math.random() * ($('#notePanel').children().length + 1));
+        if (position === 0) {
+          $('#notePanel').prepend($note);
+        } else {
+          $('#notePanel div:nth-child(' + position + ')').after($note);
+        }
+
+        $('#noteInput').val('');
+        
+        $note.hide().slideDown();
+        
+        $note.on('click', function() {
+          $(this).toggleClass('important');
+        });
+
+        var $removeButton = $('<button class="removeNote">Remove</button>');
+        $removeButton.on('click', function() {
+          var $removedNote = $note.clone();
+          $note.slideUp(300, function() {
+            $removedNote.find('.removeNote').text('Retrieve');
+            $removedNote.append('<button class="deleteNote">Delete</button>');
+            $('#removedPanel').append($removedNote.hide().slideDown());
+            $(this).remove();
+          });
+        });
+        $note.append($removeButton);
+      }
+    });
+
+    $('#removedPanel').on('click', '.removeNote', function() {
+      var $removedNote = $(this).closest('.note');
+      $removedNote.slideUp(300, function() {
+        $(this).find('.removeNote').text('Delete');
+        $('#notePanel').append($(this).hide().slideDown());
+      });
+    });
+
+    $('#removedPanel').on('click', '.deleteNote', function() {
+      $(this).closest('.note').slideUp(300, function() {
+        $(this).remove();
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
